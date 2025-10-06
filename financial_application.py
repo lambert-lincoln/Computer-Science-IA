@@ -71,19 +71,19 @@ def display_financial_statements():
             st.header("Income Statement")
             st.dataframe(display_statements("INCOME STATEMENT"))
             chatbot_help()
-            st.button(label="Ask AI", key="Income Statement Help", icon="🤖")
+            st.button(label="Ask AI", key="Income Statement Help", icon="🤖", help="Automatically take necessary data and ask AI to analyze them for you.")
 
         with tab2:
             st.header("Balance Sheet")
             st.dataframe(display_statements("BALANCE SHEET"))
             chatbot_help()
-            st.button(label="Ask AI", key="Balance Sheet Help", icon="🤖")
+            st.button(label="Ask AI", key="Balance Sheet Help", icon="🤖", help="Automatically take necessary data and ask AI to analyze them for you.")
 
         with tab3:
             st.header("Cash Flow")
             st.dataframe(display_statements("CASH FLOW"))
             chatbot_help()
-            st.button(label="Ask AI", key="Cash Flow Help", icon="🤖")
+            st.button(label="Ask AI", key="Cash Flow Help", icon="🤖", help="Automatically take necessary data and ask AI to analyze them for you.")
 
     except Exception as e:
         st.write(f"There is an error: {e}")
@@ -1070,7 +1070,7 @@ def AI_mentor():
             st.markdown(message["content"])
     
     # User input handling        
-    if input := st.chat_input("Enter your prompt"):
+    if input := st.chat_input("Ask something"):
         st.session_state.messages.append({"role": "user", "content": input})
         with st.chat_message("user"):
             st.markdown(input)
