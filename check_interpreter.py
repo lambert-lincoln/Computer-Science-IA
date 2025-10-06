@@ -11,7 +11,7 @@ response = client.chat.completions.create(
     model="glm-4.5-flash",
     messages=[
            {"role": "system", "content": "You are a helpful AI chatbot"},
-            {"role": "user", "content": "test, test, does this work?"}
+            {"role": "user", "content": "Hi, explain to me the roles and pre-requisites of an AI Engineer"}
            ],
       thinking={
            "type": "enabled",
