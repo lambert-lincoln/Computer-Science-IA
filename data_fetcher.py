@@ -40,29 +40,30 @@ class DataFetcher:
             message = {"error": f"Could not fetch company overview {e}"}
             return message
 
+    def get_hist(self) -> pd.DataFrame:
+        hist = self.stock.history(period="2y")
+        hist.index = hist.index.tz_localize(None)
+        return hist
+
     def get_financial_statements(self, statement_type: str) -> pd.DataFrame:
-        try:
-            statement_type = statement_type.upper()
-            config = self.statement_config.get(statement_type)
+        type = statement_type.upper()
+        config = self.statement_config.get(type)
 
-            if not config:
-                raise ValueError(f"Invalid statement type: {statement_type}")
+        if not config:
+            raise ValueError(f"Invalid statement type: {statement_type}")
 
-            raw_stmt = config.get("attr")
+        raw_stmt = config.get("attr")
 
-            if not raw_stmt:
-                raise ValueError(f"Data for {statement_type} cannot be found")
+        if raw_stmt.empty:
+            raise ValueError(f"Data for {statement_type} cannot be found")
 
-            available_cols = [col for col in config.get(
-                "cols") if col in raw_stmt.index]
-            filtered_stmt = raw_stmt.loc[available_cols]
+        available_cols = [col for col in config.get(
+            "cols") if col in raw_stmt.index]
+        filtered_stmt = raw_stmt.loc[available_cols]
 
-            return filtered_stmt
+        return filtered_stmt
 
-        except Exception as e:
-            return pd.DataFrame({"error": [f"Could not fetch {statement_type}: {e}"]})
-
-    def get_ps_ratio(self) -> pd.DataFrame:
+    def get_pb_ratio(self) -> pd.DataFrame:
         # P/S Ratio = Market Value Per Share (Price of Stock) / Sales per share
         hist = self.get_hist()
         balance_sheet = self.statement_config.get(
@@ -82,88 +83,119 @@ class DataFetcher:
 
         stockholders_equity = balance_sheet.loc[equity_label]
         ordinary_shares = balance_sheet.loc[shares_label]
-        
+
         stockholders_equity.index = pd.to_datetime(stockholders_equity.index)
         ordinary_shares.index = pd.to_datetime(ordinary_shares.index)
 
         quarterly_bvps = stockholders_equity / ordinary_shares
 
         # Start of interpolation
-        daily_dates = pd.date_range(
-            start=hist.index.min(),
-            end=hist.index.max(),
-            freq='D'
-        )
+        daily_dates = hist.index
+        
         daily_bvps = quarterly_bvps.reindex(daily_dates)
-        daily_bvps = daily_bvps.interpolate(method="time").ffill().bfill()
+        daily_bvps = daily_bvps.ffill().bfill()
         # End of interpolation
 
         # P/S Ratio = Market Value Per Share (Price of Stock) / Sales per share
-        aligned_hist, aligned_bvps = hist.align(daily_bvps, join='inner')
-        
-        ps_ratio_series = aligned_hist.loc['Close'] / aligned_bvps
-        
+        ps_ratio_series = hist['Close'] / daily_bvps
+
         result_df = pd.DataFrame({
-            "Close": aligned_hist.loc['Close'],
-             "BVPS": aligned_bvps,
-             "P/B Ratio": ps_ratio_series,
-        })
-        
+            "Close": hist['Close'],
+            "BVPS": daily_bvps,
+            "P/B Ratio": ps_ratio_series,
+        }).dropna()
+
         return result_df
 
-    def get_pb_ratio(self) -> pd.DataFrame:
-        # P/B ratio = Price / Book Value per share
+    def get_ev_ebitda_ratio(self) -> pd.DataFrame:
+        
+        # Daily EV-EBITDA Ratio = daily EV / daily EBITDA
+        
+        hist = self.get_hist()
+        quarterly_bs = self.statement_config.get("BALANCE SHEET").get("quarter")
+        quarterly_is = self.statement_config.get("INCOME STATEMENT").get("quarter")
+
+        if quarterly_bs.empty or quarterly_is.empty:
+            raise ValueError("Balance sheet or income statement is empty")
+        
+        daily_dates = hist.index
+        
+        daily_close = hist['Close']
+        daily_shares = quarterly_bs.loc["Share Issued"].reindex(daily_dates).ffill().bfill()
+        daily_debt = quarterly_bs.loc["Total Debt"].reindex(daily_dates).ffill().bfill()
+        daily_cash = quarterly_bs.loc["Cash And Cash Equivalents"].reindex(daily_dates).ffill().bfill()
+        daily_ebitda = quarterly_is.loc["EBITDA"].reindex(daily_dates).ffill().bfill()
+        
+        daily_ev = (daily_close * daily_shares) + daily_debt - daily_cash
+        daily_ev_ebitda = daily_ev / daily_ebitda
+        
+        result_df = pd.DataFrame({
+            "Daily EBITDA": daily_ebitda,
+            "Daily EV": daily_ev,
+            "Daily EV/EBITDA Ratio": daily_ev_ebitda,
+        }).dropna()
+        
+        return result_df
+            
+    def get_ps_ratio(self) -> pd.DataFrame:
+        # P/S = Price per share / Sales per share
+
+        # Obtaining materials needed
         hist = self.get_hist()
         balance_sheet = self.statement_config.get(
             "BALANCE SHEET").get("quarter")
+        income_stmt = self.statement_config.get(
+            "INCOME STATEMENT").get("quarter")
 
-        if balance_sheet.empty:
+        if balance_sheet.empty or income_stmt.empty:
             raise ValueError(
-                f"The balance sheet for {self.ticker} cannot be found")
+                f"The balance sheet or income statement for this ticker: {self.ticker} cannot be found.")
 
-        if not balance_sheet.empty and "Stockholders Equity" in balance_sheet.index:
-            # Book Value = Stockholders Equity
-            stockholders_equity = balance_sheet.loc["Stockholders Equity"]
-            ordinary_shares = balance_sheet.loc["Ordinary Shares Number"]
-            # Book Value per share = Book Value / Ordinary Shares Number
-            quarterly_bvps = stockholders_equity / ordinary_shares
-        else:
-            raise ValueError(
-                f"Stockholders Equity not found in balance sheet for {self.ticker}")
+        sales_label = next((label for label in income_stmt.index if "total" in label.lower(
+        ) and "revenue" in label.lower()), None)
+        shares_label = next((label for label in balance_sheet.index if "ordinary" in label.lower(
+        ) and "shares" in label.lower() and "number" in label.lower()), None)
 
-        # Start of interpolation
-        daily_dates = pd.date_range(
-            start=hist.index.min(),
-            end=hist.index.max(),
-            freq='D',
-        )
+        total_sales = income_stmt.loc[sales_label]
+        shares_outstanding = balance_sheet.loc[shares_label]
+        quarterly_sps = total_sales / shares_outstanding
 
-        daily_bvps = quarterly_bvps.reindex(daily_dates)
-        daily_bvps = daily_bvps.interpolate(method="linear")
-        daily_bvps = daily_bvps.ffill().bfill()
+        daily_dates = hist.index
 
-        pb_data = []
+        daily_sps = quarterly_sps.reindex(daily_dates)
+        daily_sps = daily_sps.ffill().bfill()
 
-        # P/B ratio = Price / Book Value per share
-        for date in hist.index:
-            if date in daily_bvps.index:
-                pb_ratio = hist.loc[date, "Close"] / daily_bvps.loc[date]
-                pb_data.append({
-                    'Date': date,
-                    'P/B Ratio': pb_ratio,
-                })
-            else:
-                raise ValueError(f"No common dates found")
+        ps_series = hist['Close'] / daily_sps
 
-        return pd.DataFrame(pb_data)
+        result_df = pd.DataFrame({
+            "Close": hist['Close'],
+            "Sales Per Share": daily_sps,
+            "P/S Ratio": ps_series,
+        }).dropna()
 
-    def get_intangible_pb_ratio(self) -> pd.DataFrame:
-        pass
+        return result_df
+    
+    def SMA_calculation(
+        self, 
+        df: pd.DataFrame,
+        metric_columns: list = None,
+        periods: list = [20, 50, 100]
+    ):
+        if metric_columns is None:
+            metric_columns = [col for col in df.columns if "ratio" in col.lower() or "close" in col.lower()]
+        
+        df = df.sort_index()
+        
+        for col in metric_columns:
+            for period in periods:
+                sma_col_name = f"{col} {period}-day SMA"
+                df[sma_col_name] = df[col].rolling(window=period).mean()
+                
+        return df
 
-    def get_hist(self) -> pd.DataFrame:
-        hist = self.stock.history(period="2y")
-        hist.index = hist.index.tz_localize(None)
-
+    def get_technical(self):
+        df = self.SMA_calculation(df=self.get_hist()).iloc[99:]
+        return df
 
 '''
    def get_basic_ratios_and_metrics(self):

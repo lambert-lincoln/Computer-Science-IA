@@ -1,34 +1,41 @@
 from APIkey import _ApiKey as AK
-from zai import ZaiClient
+import streamlit as st
+from back_end import BackEnd as BE
 
-class AI_mentor():
-     def chatbot(self, messages: list):
-        try:
-            api = AK()
-            ZAI_KEY = api.get_ZAI_key()
 
-            client = ZaiClient(api_key=ZAI_KEY)
-            
-            full_messages = [
-                    {"role": "system", "content": f"{self.prompt}"},
-                ] + messages
+def show_ai_mentor_page ():
+    
+    st.title("🤖 Your Financial AI Mentor")
 
-            response = client.chat.completions.create(
-                model="glm-4.5-flash",
-                messages=full_messages,
-                thinking={
-                    "type": "enabled",
-                },
-                max_tokens=4096,
-                temperature=0.6,
-                stream= True
-            )
+    be = BE()
 
-            # Stream response
-            for chunk in response:
-                if chunk.choices[0].delta.content:
-                    yield chunk.choices[0].delta.content
-                            
+    if "messages" not in st.session_state:
+        st.session_state.messages = []
 
-        except Exception as e:
-            yield f"An error occured {e}"
+    # Display the entire chat history
+    for message in st.session_state.messages:
+        with st.chat_message(message["role"]):
+            st.markdown(message["content"])
+
+    # Handle user input
+    if prompt := st.chat_input("Ask Your Financial AI Mentor Something"):
+        
+        st.session_state.messages.append({"role": "user", "content": prompt})
+        with st.chat_message("user"):
+            st.markdown(prompt)
+
+        with st.chat_message("assistant"):
+            message_placeholder = st.empty()
+            full_response = ""
+
+            # Stream Response
+            for chunk in be.chatbot(st.session_state.messages):
+                full_response += chunk
+                message_placeholder.markdown(
+                    full_response + "▌")  # Typing cursor effect
+
+            message_placeholder.markdown(full_response)
+
+        # Add the full assistant response to the history
+        st.session_state.messages.append(
+            {"role": "assistant", "content": full_response})

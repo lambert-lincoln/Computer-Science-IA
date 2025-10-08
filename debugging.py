@@ -1,5 +1,13 @@
 import pandas as pd
 import yfinance as yf
-import data_fetcher as DF
+from data_fetcher import DataFetcher
+import streamlit as st
+from figure import Figure as fig
 
-data = DF("aapl")
+figure = fig()
+ticker_to_test = "AAPL"
+stock = yf.Ticker(ticker=ticker_to_test)
+fetcher = DataFetcher(ticker_to_test)
+price_data = fetcher.get_technical()
+st.write(price_data)
+st.plotly_chart(figure.plot_chart(price_data), use_container_width=True, height=800)
