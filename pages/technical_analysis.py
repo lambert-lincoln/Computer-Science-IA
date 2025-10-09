@@ -6,7 +6,6 @@ def display_price_chart(ticker: str):
     fetcher = DataFetcher(ticker)
     figure = Figure()
     
-    col1, col2, col3, col4 = st.columns(4)
     price_data = fetcher.get_technical()
     
     st.title(f"Price Data {ticker}")
@@ -15,6 +14,8 @@ def display_price_chart(ticker: str):
     st.divider()
     st.header("Price Data")
     st.data_editor(price_data)
+    
+    col1, col2, col3, col4 = st.columns(4)
     with col1:
         change = price_data["Close"].iloc[-1]- price_data["Close"].iloc[-2]
         percentage = (change/price_data["Close"].iloc[-1])*100
