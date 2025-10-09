@@ -6,7 +6,7 @@ def display_price_chart(ticker: str):
     fetcher = DataFetcher(ticker)
     figure = Figure()
     
-    col1, col2, col3 = st.columns(3)
+    col1, col2, col3, col4 = st.columns(4)
     price_data = fetcher.get_technical()
     
     st.title(f"Price Data {ticker}")
@@ -16,7 +16,16 @@ def display_price_chart(ticker: str):
     st.header("Price Data")
     st.data_editor(price_data)
     with col1:
-        st.metric(label="Opening Price", value=price_data["Open"].iloc[-1])
+        change = price_data["Close"].iloc[-1]- price_data["Close"].iloc[-2]
+        percentage = (change/price_data["Close"].iloc[-1])*100
+        st.metric(label="Opening Price", value=price_data["Open"].iloc[-1], delta=percentage)
+    with col2: 
+        st.metric(label="Closing Price", value=price_data["Close"].iloc[-1])
+    with col3:
+        st.metric(label="Highest Price", value=price_data["High"].iloc[-1])
+    with col4:
+        st.metric(label="Lowest Price", value=price_data["Low"].iloc[-1])
+    
     st.markdown("If you need help interpreting this data, you can ask your AI Financial Mentor")
     st.button(label="Ask AI Financial Mentor", icon="↗")
       
