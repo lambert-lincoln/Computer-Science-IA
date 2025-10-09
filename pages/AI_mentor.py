@@ -4,56 +4,58 @@ from back_end import BackEnd as BE
 import pandas as pd
 
 
-def initiate_chatbot(input: pd.DataFrame = None):
-
-    st.title("🤖 Your Financial AI Mentor")
-
-    be = BE()
-
-    if "messages" not in st.session_state:
-        st.session_state.messages = []
+def initiate_chatbot():
     
-    prompt = None
+    if st.session_state.show_chatbot == True:
 
-    # Display the entire chat history
-    for message in st.session_state.messages:
-        with st.chat_message(message["role"]):
-            st.markdown(message["content"])
+        st.title("🤖 Your Financial AI Mentor")
 
-    if input is None:
-        # Handle user input
-        prompt = st.chat_input("Ask Your Financial AI Mentor Something")
+        be = BE()
 
-    elif isinstance(input, pd.DataFrame):
-        prompt = f'''
-        # TASK
-        You are to help me interpret this financial data which contains the variation in price and trading volume of the past 50 days. The following is the full dataframe
+        if "messages" not in st.session_state:
+            st.session_state.messages = []
         
-        ## COMPLETE DATAFRAME
-        {input.iloc[-50:]}
-        
-        ## QUESTION
-        How should I, as both a trader and an investor interpret the variation of prices and volume based on the following data?
-        '''
-        
-    st.session_state.messages.append(
-        {"role": "user", "content": prompt})
+        input = st.session_state.price_data
 
-    with st.chat_message("user"):
-        st.markdown(prompt)
+        # Display the entire chat history
+        for message in st.session_state.messages:
+            with st.chat_message(message["role"]):
+                st.markdown(message["content"])
 
-    with st.chat_message("assistant"):
-        message_placeholder = st.empty()
-        full_response = ""
+        if input is None:
+            # Handle user input
+            prompt = st.chat_input("Ask Your Financial AI Mentor Something")
 
-        # Stream Response
-        for chunk in be.chatbot(st.session_state.messages):
-            full_response += chunk
-            message_placeholder.markdown(
-                full_response + "▌")  # Typing cursor effect
+        elif isinstance(input, pd.DataFrame):
+            prompt = f'''
+            # TASK
+            You are to help me interpret this financial data which contains the variation in price and trading volume of the past 50 days. The following is the full dataframe
+            
+            ## COMPLETE DATAFRAME
+            {input.iloc[-50:]}
+            
+            ## QUESTION
+            How should I, as both a trader and an investor interpret the variation of prices and volume based on the following data?
+            '''
+            
+            st.session_state.messages.append(
+                {"role": "user", "content": prompt})
 
-        message_placeholder.markdown(full_response)
+            with st.chat_message("user"):
+                st.markdown(prompt)
 
-        # Add the full assistant response to the history
-        st.session_state.messages.append(
-            {"role": "assistant", "content": full_response})
+            with st.chat_message("assistant"):
+                message_placeholder = st.empty()
+                full_response = ""
+
+                # Stream Response
+                for chunk in be.chatbot(st.session_state.messages):
+                    full_response += chunk
+                    message_placeholder.markdown(
+                        full_response + "▌")  # Typing cursor effect
+
+                message_placeholder.markdown(full_response)
+
+                # Add the full assistant response to the history
+                st.session_state.messages.append(
+                    {"role": "assistant", "content": full_response})
