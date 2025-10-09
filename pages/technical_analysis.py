@@ -16,7 +16,7 @@ def display_price_chart(ticker: str):
     st.header("Price Data")
     st.data_editor(price_data)
     with col1:
-        st.metric(label="Opening Price", value=f"")
+        st.metric(label="Opening Price", value=price_data["Open"].iloc[-1])
     st.markdown("If you need help interpreting this data, you can ask your AI Financial Mentor")
     st.button(label="Ask AI Financial Mentor", icon="↗")
       
