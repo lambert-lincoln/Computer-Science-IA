@@ -15,7 +15,7 @@ def initiate_chatbot():
         if "messages" not in st.session_state:
             st.session_state.messages = []
 
-        input = st.session_state.price_data
+        input = st.session_state.get("price_data")
 
         # Display the entire chat history
         for message in st.session_state.messages:
