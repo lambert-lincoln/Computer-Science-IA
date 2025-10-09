@@ -1,6 +1,9 @@
 from figure import Figure
 from data_fetcher import DataFetcher
 import streamlit as st
+import pages.AI_mentor as ai_mentor_page
+
+ai_mentor_page.initiate_chatbot()
 
 def set_chatbot_state():
     st.session_state.show_chatbot = True
