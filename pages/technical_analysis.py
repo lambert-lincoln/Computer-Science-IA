@@ -1,7 +1,7 @@
 from figure import Figure
 from data_fetcher import DataFetcher
 import streamlit as st
-import AI_mentor as ai_mentor_page
+import pages.AI_mentor as ai_mentor_page
 
 def display_price_chart(ticker: str):
     fetcher = DataFetcher(ticker)
