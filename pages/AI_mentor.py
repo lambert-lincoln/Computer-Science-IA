@@ -2,7 +2,6 @@ from APIkey import _ApiKey as AK
 import streamlit as st
 from back_end import BackEnd as BE
 import pandas as pd
-import technical_analysis
 
 def set_chatbot_state():
     st.session_state.show_chatbot = True
