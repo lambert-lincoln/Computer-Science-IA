@@ -57,8 +57,8 @@ if selected == "Overview" and st.session_state.ticker != '':
 
 if selected == "AI Mentor":
     import pages.AI_mentor as ai_mentor_page
-    ai_mentor_page.show_ai_mentor_page()
-
+    ai_mentor_page.initiate_chatbot()
+    
 if selected == "Financial Statements":
     import pages.financial_statements as financial_statements_page
     pass
