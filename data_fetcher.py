@@ -193,7 +193,7 @@ class DataFetcher:
                 
         return df
 
-    def get_technical(self):
+    def get_technical(self) -> pd.DataFrame:
         df = self.SMA_calculation(df=self.get_hist()).iloc[99:]
         return df
 
