@@ -52,13 +52,21 @@ if selected == "Dashboard":
     """)
 
 if selected == "Overview" and st.session_state.ticker != '':
-    from pages.Overview import display_overview
-    display_overview(st.session_state.ticker)
+    import pages.Overview as overview_page
+    overview_page.display_overview(st.session_state.ticker)
 
 if selected == "AI Mentor":
     import pages.AI_mentor as ai_mentor_page
     ai_mentor_page.show_ai_mentor_page()
 
+if selected == "Financial Statements":
+    import pages.financial_statements as financial_statements_page
+    pass
+
+if selected == "Ratios & Metrics":
+    import pages.ratios_and_metrics as ratios_and_metrics_page
+    
+
 if selected == "Technical Analysis" and st.session_state.ticker != '':
-    from pages.technical_analysis import display_price_chart
-    display_price_chart(st.session_state.ticker)
+    import pages.technical_analysis as technical_analysis_page
+    technical_analysis_page.display_price_chart(st.session_state.ticker)

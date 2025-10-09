@@ -63,6 +63,7 @@ class Figure():
             close=df["Close"],
             high=df["High"],
             low=df["Low"],
+            name="Price ($)"
         ))
         
         for col in df.columns:

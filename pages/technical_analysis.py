@@ -7,6 +7,13 @@ def display_price_chart(ticker: str):
     figure = Figure()
     
     price_data = fetcher.get_technical()
+    
+    st.title(f"Price Data {ticker}")
+    st.header(f"Daily Chart for {ticker}")
     st.plotly_chart(figure.plot_chart(price_data), use_container_width=True)
+    st.divider()
+    st.header("Price Data")
+    st.markdown("If you need help interpreting this data, you can ask your AI Financial Mentor")
+    st.button(label="Ask AI Financial Mentor", icon="↗")
       
     
