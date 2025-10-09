@@ -3,11 +3,6 @@ from data_fetcher import DataFetcher
 import streamlit as st
 import pages.AI_mentor as ai_mentor_page
 
-ai_mentor_page.initiate_chatbot()
-
-def set_chatbot_state():
-    st.session_state.show_chatbot = True
-
 def display_price_chart(ticker: str):
     
     st.session_state.price_data = None
@@ -37,6 +32,5 @@ def display_price_chart(ticker: str):
         st.metric(label="Lowest Price", value=price_data["Low"].iloc[-1])
     
     st.markdown("If you need help interpreting this data, you can ask your AI Financial Mentor")
-    st.button(label="Ask AI Financial Mentor", icon="↗", on_click=set_chatbot_state)
-      
+    st.button(label="Ask AI Financial Mentor", icon="↗", on_click=ai_mentor_page.initiate_chatbot)
     
