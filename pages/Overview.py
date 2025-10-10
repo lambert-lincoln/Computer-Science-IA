@@ -29,3 +29,7 @@ def display_overview(ticker: str):
 
     with st.expander(label="About the Business"):
         st.write(info.get("longBusinessSummary"))
+
+
+st.title(f"Overview of {st.session_state.ticker}")
+display_overview(st.session_state.ticker)

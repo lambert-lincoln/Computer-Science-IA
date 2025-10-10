@@ -1,14 +1,11 @@
-import pandas as pd
-import yfinance as yf
-from data_fetcher import DataFetcher
 import streamlit as st
-from figure import Figure as fig
 
 # ---- PAGE SETUP ----
 landing_page = st.Page(
-    page="financial_dashboard.py",
-    title= "Dasbhboard",
-    icon="🏚️"
+    page="./pages/financial_dashboard.py",
+    title= "Dashboard",
+    icon="🏚️",
+    default=True,
 )
 
 company_overview_page = st.Page(
@@ -41,8 +38,7 @@ price_chart_page = st.Page(
 # ---- NAV BAR ----
 pg = st.navigation({
     "Home": [landing_page],
-    "Analyze": [chatbot_page, statements_page, ratio_analysis_page, price_chart_page], 
+    "Analyze": [company_overview_page, chatbot_page, statements_page, ratio_analysis_page, price_chart_page], 
 })
 
 pg.run()
-

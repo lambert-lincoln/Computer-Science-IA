@@ -32,5 +32,8 @@ def display_price_chart(ticker: str):
         st.metric(label="Lowest Price", value=price_data["Low"].iloc[-1])
     
     st.markdown("If you need help interpreting this data, you can ask your AI Financial Mentor")
-    st.button(label="Ask AI Financial Mentor", icon="↗", on_click=ai_mentor_page.initiate_chatbot)
+    if st.button(label="Ask AI Financial Mentor", icon="↗"):
+        st.switch_page("./pages/AI_mentor.py")
+    
+display_price_chart(st.session_state.ticker)
     

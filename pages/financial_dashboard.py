@@ -1,0 +1,35 @@
+import streamlit as st
+from streamlit_option_menu import option_menu
+
+if "ticker" not in st.session_state:
+    st.session_state.ticker = ''
+
+st.set_page_config(
+    page_title="Financial Dashboard",
+    page_icon="📈",
+    layout="wide",
+    initial_sidebar_state="expanded"
+)
+
+# ---- NAV BAR ----
+with st.sidebar:
+    ticker_input = st.sidebar.text_input(
+        label="Enter Stock Ticker:",
+        help="Please enter a valid ticker symbol",
+        placeholder="eg. MSFT, AAPL, PLTR",
+    )
+        
+    st.session_state.ticker = ticker_input.upper()
+
+st.title("Financial Dashboard")
+
+st.markdown("""
+    This dashboard provides comprehensive financial analysis including:
+    - 📈 Real-time stock prices and technical indicators
+    - 📋 Financial statements (Income, Balance Sheet, Cash Flow)
+    - 📊 Financial ratios and metrics
+    - 💰 DCF valuation models
+    - 📉 Interactive charts and visualizations
+
+    **👈 Enter a stock ticker in the sidebar to get started!**
+    """)
