@@ -4,6 +4,8 @@ from data_fetcher import DataFetcher
 def display_overview(ticker: str):
     fetcher = DataFetcher(ticker)
     info = fetcher.get_company_overview()
+    
+    st.header("Simple Metrics")
 
     metrics = [
         ("Current Price", info.get("regularMarketPrice", 0)),
@@ -27,8 +29,8 @@ def display_overview(ticker: str):
                     st.metric(label=f"{label}",
                               value=f"${(value/1e6):.2f}M")
 
-    with st.expander(label="About the Business"):
-        st.write(info.get("longBusinessSummary"))
+    st.header("Brief Description of the Business")
+    st.write(info.get("longBusinessSummary"))
 
 
 st.title(f"Overview of {st.session_state.ticker}")
