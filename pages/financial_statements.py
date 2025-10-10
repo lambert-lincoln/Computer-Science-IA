@@ -6,7 +6,7 @@ fetcher = DataFetcher(st.session_state.ticker)
 if "stmt.type" not in st.session_state:
     st.session_state.stmt_type = ''
 
-st.title("Financial Statements")
+st.title("Financial Statements", anchor=False)
 st.write(
     f"This is where you analyze the financial statements for {st.session_state.ticker}")
 

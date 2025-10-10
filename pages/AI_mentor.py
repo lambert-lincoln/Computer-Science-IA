@@ -1,7 +1,7 @@
 import streamlit as st
 from back_end import BackEnd as BE
 
-st.title("🤖 Your Financial AI Mentor")
+st.title("Your Financial AI Mentor", anchor=False)
 
 be = BE()
 

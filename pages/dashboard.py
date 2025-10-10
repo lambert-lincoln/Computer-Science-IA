@@ -5,13 +5,12 @@ if "ticker" not in st.session_state:
     st.session_state.ticker = ''
 
 # ---- PAGE CONFIGURATION ----
-pg = st.logo("./assets/comsci_logo.png")
 
 st.set_page_config(
     page_title="Financial Dashboard",
     page_icon=":material/analytics:",
     layout="wide",
-    initial_sidebar_state="expanded"
+    initial_sidebar_state="expanded",
 )
 
 # ---- NAV BAR ----
@@ -25,7 +24,7 @@ with st.sidebar:
         
     st.session_state.ticker = ticker_input.upper()
 
-st.title("Financial Dashboard")
+st.title("Financial Dashboard", anchor=False)
 
 st.markdown("""
     This dashboard provides comprehensive financial analysis including:
@@ -34,6 +33,8 @@ st.markdown("""
     - 📊 Financial ratios and metrics
     - 💰 DCF valuation models
     - 📉 Interactive charts and visualizations
-
+    
     **👈 Enter a stock ticker in the sidebar to get started!**
+    
+    Once you enter the ticker, **don't forget to close this page!**
     """)

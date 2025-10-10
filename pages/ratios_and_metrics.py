@@ -119,6 +119,9 @@ def display_ratios_and_metrics():
                 change = 0
 
         st.metric(label="Asset Turnover", value=f"{latest_asset_turnover:.2f}", delta=f"{change:.2f}%")
+        
+        if st.button(label="Ask AI Financial Mentor", icon="↗", key="general-metrics"):
+            st.switch_page("./pages/AI_mentor.py")
                             
     with tab2:
         st.subheader(f"Price-to-Sales Chart for {st.session_state.ticker}")

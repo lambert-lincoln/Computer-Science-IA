@@ -2,7 +2,7 @@ import streamlit as st
 
 # ---- PAGE SETUP ----
 landing_page = st.Page(
-    page="./pages/financial_dashboard.py",
+    page="./pages/dashboard.py",
     title= "Dashboard",
     icon=":material/home:",
     default=True,

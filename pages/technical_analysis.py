@@ -12,11 +12,11 @@ def display_price_chart(ticker: str):
     
     st.session_state.price_data = price_data = fetcher.get_technical()
     
-    st.title(f"Price Data {ticker}")
-    st.header(f"Daily Chart for {ticker}")
+    st.title(f"Price Data {ticker}", anchor=False)
+    st.header(f"Daily Chart for {ticker}", anchor=False)
     st.plotly_chart(figure.plot_chart(price_data), use_container_width=True)
     st.divider()
-    st.header("Price Data")
+    st.header("Price Data", anchor=False)
     st.data_editor(price_data)
     
     col1, col2, col3, col4 = st.columns(4)
@@ -29,7 +29,7 @@ def display_price_chart(ticker: str):
     with col3:
         st.metric(label="Highest Price", value=f"${price_data["High"].iloc[-1]:.2f}")
     with col4:
-        st.metric(label="Lowest Price", value=f"{price_data["Low"].iloc[-1]:.2f}")
+        st.metric(label="Lowest Price", value=f"${price_data["Low"].iloc[-1]:.2f}")
     
     st.markdown("If you need help interpreting this data, you can ask your AI Financial Mentor")
     if st.button(label="Ask AI Financial Mentor", icon="↗"):
