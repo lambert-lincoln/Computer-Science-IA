@@ -4,9 +4,12 @@ from streamlit_option_menu import option_menu
 if "ticker" not in st.session_state:
     st.session_state.ticker = ''
 
+# ---- PAGE CONFIGURATION ----
+pg = st.logo("./assets/comsci_logo.png")
+
 st.set_page_config(
     page_title="Financial Dashboard",
-    page_icon="📈",
+    page_icon=":material/analytics:",
     layout="wide",
     initial_sidebar_state="expanded"
 )
@@ -17,6 +20,7 @@ with st.sidebar:
         label="Enter Stock Ticker:",
         help="Please enter a valid ticker symbol",
         placeholder="eg. MSFT, AAPL, PLTR",
+        icon=":material/search:",
     )
         
     st.session_state.ticker = ticker_input.upper()

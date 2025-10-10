@@ -21,7 +21,7 @@ class DataFetcher:
                 "attr": self.stock.balance_sheet,
                 "quarter": self.stock.quarterly_balance_sheet,
                 "cols": ["Total Assets", "Current Assets", "Cash And Cash Equivalents", "Accounts Receivable",
-                         "Inventory", "Total Liabilities Net Minority Interest", "Total Non Current Liabilities Net Minority Interest", "Current Liabilities", "Accounts Payable",
+                         "Net PPE", "Total Liabilities Net Minority Interest", "Total Non Current Liabilities Net Minority Interest", "Current Liabilities", "Accounts Payable",
                          "Total Debt", "Stockholders Equity", "Retained Earnings"]
             },
             "CASH FLOW": {
@@ -178,11 +178,20 @@ class DataFetcher:
     def SMA_calculation(
         self, 
         df: pd.DataFrame,
-        metric_columns: list = None,
         periods: list = [20, 50, 100]
     ):
-        if metric_columns is None:
-            metric_columns = [col for col in df.columns if "ratio" in col.lower() or "close" in col.lower()]
+        
+        metric_columns = None
+        
+        found_columns = [col for col in df.columns if "ratio" in col.lower()]
+        
+        if found_columns:
+            metric_columns = found_columns
+        
+        else:
+            found_columns = [col for col in df.columns if "close" in col.lower()]
+            if found_columns:
+                metric_columns = found_columns
         
         df = df.sort_index()
         

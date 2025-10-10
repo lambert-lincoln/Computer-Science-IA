@@ -23,13 +23,13 @@ def display_price_chart(ticker: str):
     with col1:
         change = price_data["Close"].iloc[-1]- price_data["Close"].iloc[-2]
         percentage = (change/price_data["Close"].iloc[-1])*100
-        st.metric(label="Opening Price", value=price_data["Open"].iloc[-1], delta=percentage)
+        st.metric(label="Opening Price", value=f"${price_data["Open"].iloc[-1]:.2f}", delta=f"{percentage:.2f}%")
     with col2: 
-        st.metric(label="Closing Price", value=price_data["Close"].iloc[-1])
+        st.metric(label="Closing Price", value=f"${price_data["Close"].iloc[-1]:.2f}")
     with col3:
-        st.metric(label="Highest Price", value=price_data["High"].iloc[-1])
+        st.metric(label="Highest Price", value=f"${price_data["High"].iloc[-1]:.2f}")
     with col4:
-        st.metric(label="Lowest Price", value=price_data["Low"].iloc[-1])
+        st.metric(label="Lowest Price", value=f"{price_data["Low"].iloc[-1]:.2f}")
     
     st.markdown("If you need help interpreting this data, you can ask your AI Financial Mentor")
     if st.button(label="Ask AI Financial Mentor", icon="↗"):
