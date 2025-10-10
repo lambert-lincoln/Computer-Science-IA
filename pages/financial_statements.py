@@ -3,30 +3,42 @@ from data_fetcher import DataFetcher
 
 fetcher = DataFetcher(st.session_state.ticker)
 
-col1, col2, col3 = st.columns(3)
-
-with col1:
-    button1 = st.button("Show Income Statement")
-    
-with col2:
-    button2 = st.button("Show Balance Sheet")
-    
-with col3:
-    button3 = st.button("Show Cash Flow Statement")
-    
-if "stmt_type" not in st.session_state:
+if "stmt.type" not in st.session_state:
     st.session_state.stmt_type = ''
 
-if button1:
-    st.session_state.stmt_type = 'INCOME STATEMENT'
+st.title("Financial Statements")
+st.write(f"This is where you analyze the financial statements for {st.session_state.ticker}")
 
-def display_income_stmt():
+def display_stmt():
     stmt_dict = fetcher.statement_config.get(st.session_state.stmt_type, None)
     stmt = stmt_dict.get("attr", None)
     cols = stmt_dict.get("cols")
     
     if not stmt.empty and cols:
-        df = stmt[cols]
+        df = stmt.loc[cols]
         
     st.dataframe(df)
+
+tab1, tab2, tab3 = st.tabs(["Income Statement", "Balance Sheet", "Cash Flow Statement"])
+
+with tab1:
+    st.session_state.stmt_type = "INCOME STATEMENT"
+    display_stmt()
+    
+    if st.button(label="Ask AI Financial Mentor", icon="↗", key="income_statement"):
+        st.switch_page("./pages/AI_mentor.py")
+
+with tab2:
+    st.session_state.stmt_type = "BALANCE SHEET"
+    display_stmt()
+    
+    if st.button(label="Ask AI Financial Mentor", icon="↗", key="balance_sheet"):
+        st.switch_page("./pages/AI_mentor.py")
+    
+with tab3:
+    st.session_state.stmt_type = "CASH FLOW"
+    display_stmt()
+
+    if st.button(label="Ask AI Financial Mentor", icon="↗", key="cash_flow"):
+        st.switch_page("./pages/AI_mentor.py")
     

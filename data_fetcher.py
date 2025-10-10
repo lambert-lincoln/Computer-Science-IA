@@ -21,7 +21,7 @@ class DataFetcher:
                 "attr": self.stock.balance_sheet,
                 "quarter": self.stock.quarterly_balance_sheet,
                 "cols": ["Total Assets", "Current Assets", "Cash And Cash Equivalents", "Accounts Receivable",
-                         "Inventory", "Total Liabilities", "Current Liabilities", "Accounts Payable",
+                         "Inventory", "Total Liabilities Net Minority Interest", "Total Non Current Liabilities Net Minority Interest", "Current Liabilities", "Accounts Payable",
                          "Total Debt", "Stockholders Equity", "Retained Earnings"]
             },
             "CASH FLOW": {
