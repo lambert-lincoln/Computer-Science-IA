@@ -29,7 +29,7 @@ class DataFetcher:
                 "quarter": self.stock.quarterly_cash_flow,
                 "cols": ["Operating Cash Flow", "Investing Cash Flow", "Financing Cash Flow",
                          "Free Cash Flow", "Capital Expenditure", "Depreciation And Amortization"]
-            }
+            },
         }
 
     def get_company_overview(self) -> dict:
@@ -76,10 +76,8 @@ class DataFetcher:
                 f"Either the balance sheet or the income statement is empty")
 
         # Search for proper indeces
-        equity_label = next((label for label in balance_sheet.index if "stockholder" in label.lower(
-        ) and "equity" in label.lower()), None)
-        shares_label = next((label for label in balance_sheet.index if "ordinary" in label.lower(
-        ) and "shares" in label.lower() and "number" in label.lower()), None)
+        equity_label = self.find_label(balance_sheet.index, ["stockholder", "equity"])
+        shares_label = self.find_label(balance_sheet.index, ["ordinary", "shares", "number"])
 
         stockholders_equity = balance_sheet.loc[equity_label]
         ordinary_shares = balance_sheet.loc[shares_label]
@@ -91,7 +89,7 @@ class DataFetcher:
 
         # Start of interpolation
         daily_dates = hist.index
-        
+
         daily_bvps = quarterly_bvps.reindex(daily_dates)
         daily_bvps = daily_bvps.ffill().bfill()
         # End of interpolation
@@ -108,35 +106,56 @@ class DataFetcher:
         return result_df
 
     def get_ev_ebitda_ratio(self) -> pd.DataFrame:
-        
-        # Daily EV-EBITDA Ratio = daily EV / daily EBITDA
-        
-        hist = self.get_hist()
-        quarterly_bs = self.statement_config.get("BALANCE SHEET").get("quarter")
-        quarterly_is = self.statement_config.get("INCOME STATEMENT").get("quarter")
 
-        if quarterly_bs.empty or quarterly_is.empty:
-            raise ValueError("Balance sheet or income statement is empty")
+        # Daily EV-EBITDA Ratio = daily EV / daily EBITDA
+
+        hist = self.get_hist()
+        quarterly_bs = self.statement_config.get(
+            "BALANCE SHEET").get("quarter")
+        quarterly_is = self.statement_config.get(
+            "INCOME STATEMENT").get("quarter")
+
+        if quarterly_bs.empty or quarterly_is.empty or hist.empty:
+            raise ValueError(
+                f"Balance sheet or income statement or closing price data for {st.session_state.ticker} is empty")
+
+        ordinary_shares_label = self.find_label(quarterly_bs.index, ["ordinary", "shares", "number"])
+        debt_label = self.find_label(quarterly_bs.index, ["total", "debt"])
+        cce_label = self.find_label(quarterly_bs.index, ["cash", "and", "equivalents"])
+        ebitda_label = self.find_label(quarterly_is.index, ["ebitda"])
+
+        if not all([ordinary_shares_label, debt_label, cce_label, ebitda_label]):
+            raise ValueError(f"Cannot find necessary labels for {st.session_state.ticker}")
+
+        shares_outstanding = quarterly_bs.loc[ordinary_shares_label]
+        debt = quarterly_bs.loc[debt_label]
+        cash = quarterly_bs.loc[cce_label]
+        ebitda = quarterly_is.loc[ebitda_label]
         
+        for series in [shares_outstanding, debt, cash, ebitda]:
+            series.index = pd.to_datetime(series.index)
+            
         daily_dates = hist.index
         
-        daily_close = hist['Close']
-        daily_shares = quarterly_bs.loc["Share Issued"].reindex(daily_dates).ffill().bfill()
-        daily_debt = quarterly_bs.loc["Total Debt"].reindex(daily_dates).ffill().bfill()
-        daily_cash = quarterly_bs.loc["Cash And Cash Equivalents"].reindex(daily_dates).ffill().bfill()
-        daily_ebitda = quarterly_is.loc["EBITDA"].reindex(daily_dates).ffill().bfill()
+        daily_shares = shares_outstanding.reindex(daily_dates).ffill().bfill()
+        daily_debt = debt.reindex(daily_dates).ffill().bfill()
+        daily_cash = cash.reindex(daily_dates).ffill().bfill()
+        daily_ebitda = cash.reindex(daily_dates).ffill().bfill()
         
-        daily_ev = (daily_close * daily_shares) + daily_debt - daily_cash
-        daily_ev_ebitda = daily_ev / daily_ebitda
-        
+        daily_mkt_cap = hist['Close'] * daily_shares
+        daily_ev = daily_mkt_cap + daily_debt - daily_cash        
+        ev_ebitda = daily_ev/daily_ebitda
+
         result_df = pd.DataFrame({
-            "Daily EBITDA": daily_ebitda,
-            "Daily EV": daily_ev,
-            "Daily EV/EBITDA Ratio": daily_ev_ebitda,
+            "EV": daily_ev,
+            "EBITDA": daily_ebitda,
+            "EV/EBITDA Ratio": ev_ebitda
         }).dropna()
-        
+
         return result_df
-            
+
+        # EV = mcap + tdebt - cce
+
     def get_ps_ratio(self) -> pd.DataFrame:
         # P/S = Price per share / Sales per share
 
@@ -151,10 +170,8 @@ class DataFetcher:
             raise ValueError(
                 f"The balance sheet or income statement for this ticker: {self.ticker} cannot be found.")
 
-        sales_label = next((label for label in income_stmt.index if "total" in label.lower(
-        ) and "revenue" in label.lower()), None)
-        shares_label = next((label for label in balance_sheet.index if "ordinary" in label.lower(
-        ) and "shares" in label.lower() and "number" in label.lower()), None)
+        sales_label = self.find_label(income_stmt.index, ["total", "revenue"])
+        shares_label = self.find_label(balance_sheet.index, ["ordinary", "shares", "number"])
 
         total_sales = income_stmt.loc[sales_label]
         shares_outstanding = balance_sheet.loc[shares_label]
@@ -174,50 +191,41 @@ class DataFetcher:
         }).dropna()
 
         return result_df
-    
+
     def SMA_calculation(
-        self, 
+        self,
         df: pd.DataFrame,
         periods: list = [20, 50, 100]
     ):
-        
+
         metric_columns = None
-        
+
         found_columns = [col for col in df.columns if "ratio" in col.lower()]
-        
+
         if found_columns:
             metric_columns = found_columns
-        
+
         else:
-            found_columns = [col for col in df.columns if "close" in col.lower()]
+            found_columns = [
+                col for col in df.columns if "close" in col.lower()]
             if found_columns:
                 metric_columns = found_columns
-        
+
         df = df.sort_index()
-        
+
         for col in metric_columns:
             for period in periods:
                 sma_col_name = f"{col} {period}-day SMA"
                 df[sma_col_name] = df[col].rolling(window=period).mean()
-                
+
         return df
+    
+    def find_label(self, index, keywords: list):
+        for label in index:
+            if all(keyword in label.lower() for keyword in keywords):
+                return label
+        return None
 
     def get_technical(self) -> pd.DataFrame:
         df = self.SMA_calculation(df=self.get_hist()).iloc[99:]
         return df
-
-'''
-   def get_basic_ratios_and_metrics(self):
-        info = self.stock.info
-        ratio_categories = {
-            "Profitability": ["grossMargins", "operatingMargins",
-                              "returnOnAssets", "returnOnEquity"],
-            "Liquidity": ["currentRatio", "quickRatio", "freeCashflow"],
-            "Leverage": ["debtToEquity"]
-        }
-        
-        income_stmt = self.statement_config.get("INCOME STATEMENT").get("attr")
-        balance_sheet = self.statement_config.get("BALANCE SHEET").get("attr")
-        cash_flow = self.statement_config.get("CASH FLOW").get("attr")
-    
-'''
