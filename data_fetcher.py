@@ -76,8 +76,10 @@ class DataFetcher:
                 f"Either the balance sheet or the income statement is empty")
 
         # Search for proper indeces
-        equity_label = self.find_label(balance_sheet.index, ["stockholder", "equity"])
-        shares_label = self.find_label(balance_sheet.index, ["ordinary", "shares", "number"])
+        equity_label = self.find_label(
+            balance_sheet.index, ["stockholder", "equity"])
+        shares_label = self.find_label(
+            balance_sheet.index, ["ordinary", "shares", "number"])
 
         stockholders_equity = balance_sheet.loc[equity_label]
         ordinary_shares = balance_sheet.loc[shares_label]
@@ -119,31 +121,34 @@ class DataFetcher:
             raise ValueError(
                 f"Balance sheet or income statement or closing price data for {st.session_state.ticker} is empty")
 
-        ordinary_shares_label = self.find_label(quarterly_bs.index, ["ordinary", "shares", "number"])
+        ordinary_shares_label = self.find_label(
+            quarterly_bs.index, ["ordinary", "shares", "number"])
         debt_label = self.find_label(quarterly_bs.index, ["total", "debt"])
-        cce_label = self.find_label(quarterly_bs.index, ["cash", "and", "equivalents"])
+        cce_label = self.find_label(
+            quarterly_bs.index, ["cash", "and", "equivalents"])
         ebitda_label = self.find_label(quarterly_is.index, ["ebitda"])
 
         if not all([ordinary_shares_label, debt_label, cce_label, ebitda_label]):
-            raise ValueError(f"Cannot find necessary labels for {st.session_state.ticker}")
+            raise ValueError(
+                f"Cannot find necessary labels for {st.session_state.ticker}")
 
         shares_outstanding = quarterly_bs.loc[ordinary_shares_label]
         debt = quarterly_bs.loc[debt_label]
         cash = quarterly_bs.loc[cce_label]
         ebitda = quarterly_is.loc[ebitda_label]
-        
+
         for series in [shares_outstanding, debt, cash, ebitda]:
             series.index = pd.to_datetime(series.index)
-            
+
         daily_dates = hist.index
-        
+
         daily_shares = shares_outstanding.reindex(daily_dates).ffill().bfill()
         daily_debt = debt.reindex(daily_dates).ffill().bfill()
         daily_cash = cash.reindex(daily_dates).ffill().bfill()
         daily_ebitda = cash.reindex(daily_dates).ffill().bfill()
-        
+
         daily_mkt_cap = hist['Close'] * daily_shares
-        daily_ev = daily_mkt_cap + daily_debt - daily_cash        
+        daily_ev = daily_mkt_cap + daily_debt - daily_cash
         ev_ebitda = daily_ev/daily_ebitda
 
         result_df = pd.DataFrame({
@@ -171,7 +176,8 @@ class DataFetcher:
                 f"The balance sheet or income statement for this ticker: {self.ticker} cannot be found.")
 
         sales_label = self.find_label(income_stmt.index, ["total", "revenue"])
-        shares_label = self.find_label(balance_sheet.index, ["ordinary", "shares", "number"])
+        shares_label = self.find_label(
+            balance_sheet.index, ["ordinary", "shares", "number"])
 
         total_sales = income_stmt.loc[sales_label]
         shares_outstanding = balance_sheet.loc[shares_label]
@@ -219,7 +225,7 @@ class DataFetcher:
                 df[sma_col_name] = df[col].rolling(window=period).mean()
 
         return df
-    
+
     def find_label(self, index, keywords: list):
         for label in index:
             if all(keyword in label.lower() for keyword in keywords):

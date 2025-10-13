@@ -1,16 +1,13 @@
 from figure import Figure
 from data_fetcher import DataFetcher
 import streamlit as st
-import pages.AI_mentor as ai_mentor_page
 
 def display_price_chart(ticker: str):
-    
-    st.session_state.price_data = None
     
     fetcher = DataFetcher(ticker)
     figure = Figure()
     
-    st.session_state.price_data = price_data = fetcher.get_technical()
+    price_data = fetcher.get_technical()
     
     st.title(f"Price Data {ticker}", anchor=False)
     st.header(f"Daily Chart for {ticker}", anchor=False)
