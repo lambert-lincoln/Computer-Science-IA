@@ -1,5 +1,4 @@
 import streamlit as st
-from streamlit_option_menu import option_menu
 
 if "ticker" not in st.session_state:
     st.session_state.ticker = ''

@@ -1,5 +1,4 @@
 import plotly.graph_objects as go
-import data_fetcher as df
 import pandas as pd
 
 class Figure():
