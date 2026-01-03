@@ -118,7 +118,7 @@ class DataFetcher:
             "INCOME STATEMENT").get("quarter")
 
         if quarterly_bs.empty or quarterly_is.empty or hist.empty:
-            raise ValueError(
+            ( 
                 f"Balance sheet or income statement or closing price data for {st.session_state.ticker} is empty")
 
         ordinary_shares_label = self.find_label(
@@ -235,3 +235,4 @@ class DataFetcher:
     def get_technical(self) -> pd.DataFrame:
         df = self.SMA_calculation(df=self.get_hist()).iloc[99:]
         return df
+

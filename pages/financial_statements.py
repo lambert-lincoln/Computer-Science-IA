@@ -40,7 +40,7 @@ with tab1:
     It provides valuable insights into a company's operations, the efficiency of its management, underperforming sectors, and its performance relative to industry peers.
     
     '''
-    st.markdown(markdown)
+    st.markdown(markdown) # description of income statement
 
 with tab2:
     st.session_state.stmt_type = "BALANCE SHEET"
@@ -56,7 +56,7 @@ with tab2:
     A balance sheet lists a company's assets, liabilities, and shareholders' equity for an operating period. Balance sheets provide the basis for computing rates of return for investors and evaluating a company's capital structure.
     
     '''
-    st.markdown(markdown)
+    st.markdown(markdown) # description of balance sheet
 
 
 with tab3:
@@ -73,4 +73,4 @@ with tab3:
     A cash flow statement shows how money flows in and out of a company through operations, investments, and financing activities. The cash flow statement highlights liquidity, how well a business generates cash to fund growth and meet obligations, and helps investors and analysts gauge financial strength and stability.
     
     '''
-    st.markdown(markdown)
+    st.markdown(markdown) # description of cash flow statement

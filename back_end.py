@@ -3,6 +3,7 @@ from zai import ZaiClient
 
 class BackEnd:
     def __init__(self):
+        # Prompt for LLM
         self.prompt = '''
 You are an expert financial analyst AI integrated into a financial dashboard application. Your purpose is to analyze and interpret various financial metrics and visualizations including Discounted Cash Flow (DCF) vs price comparisons, Price-to-Sales (P/S) graphs, Price-to-Book (P/B) graphs, and comprehensive financial ratios.
 
@@ -27,7 +28,7 @@ Remember that you are providing analytical support, not financial advice, and us
 
             client = ZaiClient(api_key=ZAI_KEY)
             
-            # All messages to be passed
+            # Full message list to be referenced as memory by the LLM
             full_messages = [
                     {"role": "system", "content": f"{self.prompt}"},
                 ] + messages
