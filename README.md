@@ -1,62 +1,70 @@
-# TRADINGALGO — README
+# TRADING PLATFORM
 
-> Short repo guide: dependencies, installation, and quick start.
+A Python-based trading analysis and dashboard application built with
+[pandas][pandas], [Streamlit][streamlit], [yfinance][yfinance], the
+[Z.AI Python SDK][zai-sdk], and [Plotly][plotly].
 
 ---
 
 ## Requirements
-
-* Python 3.8 — 3.12 (recommended)
-* Git
-* `pip` (or `pip3`)
-
----
-
-## Python dependencies
-
-This project uses the following Python packages:
-
-* `pandas`
-* `yfinance`
-* `streamlit`
-* `zai-sdk` (Z.AI Python SDK)
-* `plotly` (use `plotly.graph_objects` in code)
+- Python 3.8 — 3.12 (recommended)
+- Git
+- `pip` or `pip3`
 
 ---
 
-## Quick install (Unix / macOS)
+## Python Dependencies
 
+This project depends on the following libraries. Click each name to access its official documentation:
+
+- [pandas][pandas] — data manipulation and analysis  
+- [yfinance][yfinance] — Yahoo Finance market data  
+- [Streamlit][streamlit] — interactive web dashboards  
+- [Z.AI Python SDK][zai-sdk] — AI-powered features  
+- [Plotly][plotly] — interactive charts (`plotly.graph_objects`)
+
+---
+
+## Installation
+
+### 1. Clone the repository
 ```bash
-# 1. clone repo (if not already)
 git clone https://github.com/lambert-lincoln/TradingAlgo.git
 cd TradingAlgo
+````
 
-# 2. create a virtual environment
+### 2. Create a virtual environment
+
+```bash
 python -m venv venv
-
-# 3. activate the venv
-# macOS / Linux:
-source venv/bin/activate
-# Windows (PowerShell):
-# .\venv\Scripts\Activate.ps1
-# Windows (cmd):
-# .\venv\Scripts\activate.bat
-
-# 4. install dependencies
-pip install --upgrade pip
-pip install pandas yfinance streamlit zai-sdk plotly
-
-# (optional) freeze installed packages to requirements.txt
-pip freeze > requirements.txt
 ```
 
-### Quick install (Windows cmd)
+### 3. Activate the virtual environment
 
-```cmd
-python -m venv venv
-venv\Scripts\activate
+**macOS / Linux**
+
+```bash
+source venv/bin/activate
+```
+
+**Windows (PowerShell)**
+
+```powershell
+.\venv\Scripts\Activate.ps1
+```
+
+---
+
+### 4. Install dependencies
+
+```bash
 pip install --upgrade pip
 pip install pandas yfinance streamlit zai-sdk plotly
+```
+
+(Optional) Freeze dependencies:
+
+```bash
 pip freeze > requirements.txt
 ```
 
@@ -64,9 +72,7 @@ pip freeze > requirements.txt
 
 ## Example `requirements.txt`
 
-You can paste this into `requirements.txt` (or generate using `pip freeze`):
-
-```
+```txt
 pandas
 yfinance
 streamlit
@@ -76,112 +82,69 @@ plotly
 
 ---
 
-## Environment variables / API keys
+## Running the App
 
-If your project uses API keys (Alpha Vantage, OpenAI, Z.ai, broker keys, etc.):
-
-1. Create a `.env` file in the repo root (DO NOT commit this file).
-2. Add keys there:
-
-```
-ZAI_API_KEY=your_zai_key_here
-ALPHA_VANTAGE_KEY=your_alpha_vantage_key
-OTHER_KEY=...
-```
-
-3. Load keys in Python (example with `python-dotenv`—install if needed):
-
-```python
-from dotenv import load_dotenv
-import os
-
-load_dotenv()
-ZAI_KEY = os.getenv("ZAI_API_KEY")
-```
-
-> Important: Add `.env`, `APIkey.py` (or any file that contains secrets) to `.gitignore`. If secrets were already committed, rotate the keys immediately.
-
----
-
-## Running the app / common commands
-
-* Run Streamlit app (if your entrypoint is `app.py`):
+If your main entry point is `app.py`:
 
 ```bash
 streamlit run app.py
 ```
 
-* Run a regular Python script:
-
-```bash
-python data_fetcher.py
-```
-
-* Run tests (if present):
-
-```bash
-# example: pytest
-pytest
-```
-
 ---
 
-## Import examples
+## Example Imports
 
 ```python
 import pandas as pd
 import yfinance as yf
 import streamlit as st
 import plotly.graph_objects as go
-from zai import ZaiClient  # if using zai-sdk
-```
-
-Simple `yfinance` fetch example:
-
-```python
-import yfinance as yf
-df = yf.download("AAPL", period="1mo", interval="1d")
-print(df.head())
-```
-
-Simple `plotly` example:
-
-```python
-import plotly.graph_objects as go
-
-fig = go.Figure(go.Scatter(x=[1,2,3], y=[1,3,2]))
-fig.show()
-```
-
-Z.AI SDK quick check:
-
-```python
-import zai
-print(zai.__version__)
-# or
 from zai import ZaiClient
-client = ZaiClient(api_key="YOUR_KEY_HERE")
 ```
 
 ---
 
-## Security & best practices
+## API Keys & Environment Variables
 
-* Never commit `venv/`, `.env`, `APIkey.py`, or other secret files. Add those to your `.gitignore`.
-* If you accidentally pushed secrets, **rotate the keys immediately**.
-* Use `requirements.txt` to lock dependencies, or use `poetry`/`pip-tools` for reproducible installs.
-* Prefer environment variables or secret management for deployments (GitHub Actions secrets, CI/CD vaults).
+If the project uses API keys:
+
+1. Create a `.env` file in the project root (do **not** commit it)
+2. Add your keys:
+
+```env
+ZAI_API_KEY=your_key_here
+```
+
+3. Load them in Python:
+
+```python
+import os
+from dotenv import load_dotenv
+
+load_dotenv()
+ZAI_KEY = os.getenv("ZAI_API_KEY")
+```
+
+Make sure `.env` and any secret files are listed in `.gitignore`.
 
 ---
 
-## Troubleshooting
+## Documentation Links
 
-* If a package fails to install, make sure your Python version is supported and `pip` is up-to-date:
+* pandas docs: [https://pandas.pydata.org/docs/](https://pandas.pydata.org/docs/)
+* Streamlit docs: [https://docs.streamlit.io](https://docs.streamlit.io)
+* yfinance docs: [https://pypi.org/project/yfinance/](https://pypi.org/project/yfinance/)
+* Plotly Python docs: [https://plotly.com/python/](https://plotly.com/python/)
+* Z.AI SDK docs: [https://pypi.org/project/zai-sdk/](https://pypi.org/project/zai-sdk/)
 
-```bash
-python -m pip install --upgrade pip
+---
+
+## Reference Links
+
+[pandas]: https://pandas.pydata.org/docs/
+[yfinance]: https://pypi.org/project/yfinance/
+[streamlit]: https://docs.streamlit.io
+[plotly]: https://plotly.com/python/
+[zai-sdk]: https://pypi.org/project/zai-sdk/
+
 ```
-
-* If `zai-sdk` name changes in future, check the [official Z.AI docs] (Z.AI-Python-SDK-Docs) or project README (install command currently: `pip install zai-sdk`).
-
-(Z.AI-Python-SDK-Docs) = https://docs.z.ai/guides/develop/python/introduction
