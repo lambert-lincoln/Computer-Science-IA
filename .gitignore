@@ -25,6 +25,7 @@ APIkey.py
 .DS_Store
 .vscode/
 .idea/
+.txt
 
 # =========================
 # Logs & temp files
