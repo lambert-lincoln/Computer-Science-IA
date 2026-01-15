@@ -9,6 +9,7 @@ class DataFetcher:
         self.ticker = ticker.upper()
         self.stock = yf.Ticker(self.ticker)
 
+# -------------- DEFAULT CONFIGURATION --------------
         self.statement_config = {
             "INCOME STATEMENT": {
                 "attr": self.stock.income_stmt,
